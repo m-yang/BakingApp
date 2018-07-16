@@ -120,7 +120,7 @@ public class ItemListActivity extends AppCompatActivity {
                 Recipe item = (Recipe) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.getName());
+                    arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, item);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()

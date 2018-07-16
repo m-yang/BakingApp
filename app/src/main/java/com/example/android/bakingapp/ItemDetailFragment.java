@@ -35,12 +35,17 @@ public class ItemDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        Bundle bundle = getActivity().getIntent().getExtras();
-        if (bundle.containsKey(ARG_ITEM_ID)) {
-            mItem = (Recipe) bundle.getParcelable(ARG_ITEM_ID);
+        if (getArguments().containsKey(ARG_ITEM_ID)) {
+            mItem = getArguments().getParcelable(ARG_ITEM_ID);
             Log.d(TAG, mItem.getName());
 
+            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+            if (appBarLayout != null) {
+                appBarLayout.setTitle(mItem.getName());
+            }
         }
+
+
     }
 
     @Override
@@ -51,7 +56,7 @@ public class ItemDetailFragment extends Fragment {
         if (mItem != null) {
             Log.d(TAG, "mItem != null");
             ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.getName());
-        } 
+        }
 
         return rootView;
     }
