@@ -15,10 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.android.bakingapp.Model.Recipes;
+import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Retrofit.RecipeEndpoint;
 import com.example.android.bakingapp.Model.Retrofit.RetrofitClient;
-import com.example.android.bakingapp.dummy.DummyContent;
 
 import java.util.List;
 
@@ -58,15 +57,15 @@ public class ItemListActivity extends AppCompatActivity {
 
         RecipeEndpoint client = mRetrofit.create(RecipeEndpoint.class);
 
-        Call<List<Recipes>> call = client.getRecipes();
+        Call<List<Recipe>> call = client.getRecipes();
 
-        call.enqueue(new Callback<List<Recipes>>() {
+        call.enqueue(new Callback<List<Recipe>>() {
             @Override
-            public void onResponse(Call<List<Recipes>> call, Response<List<Recipes>> response) {
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
 
-                List<Recipes> recipesList = response.body();
+                List<Recipe> recipesList = response.body();
 
-                for(Recipes r : recipesList) {
+                for(Recipe r : recipesList) {
                     Log.d(TAG, r.getName());
                 }
 
@@ -76,7 +75,7 @@ public class ItemListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Recipes>> call, Throwable t) {
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
                 Log.d(TAG, "failed: " + t.getMessage() + t.getCause());
             }
         });
@@ -105,7 +104,7 @@ public class ItemListActivity extends AppCompatActivity {
 
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Recipes> recipesList) {
+    private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Recipe> recipesList) {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, recipesList, mTwoPane));
     }
 
@@ -113,12 +112,12 @@ public class ItemListActivity extends AppCompatActivity {
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final ItemListActivity mParentActivity;
-        private final List<Recipes> mValues;
+        private final List<Recipe> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Recipes item = (Recipes) view.getTag();
+                Recipe item = (Recipe) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
                     arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.getName());
@@ -130,15 +129,14 @@ public class ItemListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.getName());
-
+                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item);
                     context.startActivity(intent);
                 }
             }
         };
 
         SimpleItemRecyclerViewAdapter(ItemListActivity parent,
-                                      List<Recipes> items,
+                                      List<Recipe> items,
                                       boolean twoPane) {
             mValues = items;
             mParentActivity = parent;
