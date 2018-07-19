@@ -1,29 +1,31 @@
-package com.example.android.bakingapp;
+package com.example.android.bakingapp.View;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.android.bakingapp.Model.Recipe;
-import com.example.android.bakingapp.dummy.DummyContent;
+import com.example.android.bakingapp.R;
 
 
 public class ItemDetailFragment extends Fragment {
 
     String TAG = ItemDetailFragment.class.getSimpleName();
+
+    public RecyclerView recipeDetailRv;
+
+    public RecyclerView recipeIngredientsRv;
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
     public static final String ARG_ITEM_ID = "item_id";
-
 
     private Recipe mItem;
 
@@ -34,7 +36,6 @@ public class ItemDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItem = getArguments().getParcelable(ARG_ITEM_ID);
             Log.d(TAG, mItem.getName());
@@ -44,8 +45,6 @@ public class ItemDetailFragment extends Fragment {
                 appBarLayout.setTitle(mItem.getName());
             }
         }
-
-
     }
 
     @Override
@@ -55,7 +54,19 @@ public class ItemDetailFragment extends Fragment {
 
         if (mItem != null) {
             Log.d(TAG, "mItem != null");
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.getName());
+
+            RecipeIngredientsAdapter ingredientsAdapter = new RecipeIngredientsAdapter(mItem.getIngredients(), getContext());
+            recipeIngredientsRv = rootView.findViewById(R.id.recipe_ingredients_rv);
+            recipeIngredientsRv.setAdapter(ingredientsAdapter);
+            recipeIngredientsRv.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+            RecipeDetailAdapter detailAdapter = new RecipeDetailAdapter(mItem.getSteps(), getContext());
+            recipeDetailRv = rootView.findViewById(R.id.recipe_detail_rv);
+            recipeDetailRv.setAdapter(detailAdapter);
+            recipeDetailRv.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
         }
 
         return rootView;
