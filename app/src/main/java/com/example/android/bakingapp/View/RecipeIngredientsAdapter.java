@@ -16,7 +16,7 @@ import java.util.List;
 
 public class RecipeIngredientsAdapter extends RecyclerView.Adapter<RecipeIngredientsAdapter.IngredientsViewHolder> {
 
-    private static final String TAG = RecipeDetailAdapter.class.getName();
+    private static final String TAG = RecipeIngredientsAdapter.class.getName();
 
     private final int mNumberItems;
 

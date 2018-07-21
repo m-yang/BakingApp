@@ -14,9 +14,9 @@ import com.example.android.bakingapp.R;
 import java.util.List;
 
 
-public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapter.RecipeViewHolder> {
+public class RecipeStepAdapter extends RecyclerView.Adapter<RecipeStepAdapter.RecipeViewHolder> {
 
-    private static final String TAG = RecipeDetailAdapter.class.getName();
+    private static final String TAG = RecipeStepAdapter.class.getName();
 
     private final int mNumberItems;
 
@@ -24,11 +24,18 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
 
     private final Context context;
 
-    public RecipeDetailAdapter(List<StepsItem> steps, Context context) {
+    private OnStepClickListener mClickListener;
+
+    public RecipeStepAdapter(List<StepsItem> steps, Context context) {
 
         this.steps = steps;
         this.context = context;
         this.mNumberItems = steps.size();
+        this.mClickListener = (OnStepClickListener) context;
+    }
+
+    interface OnStepClickListener {
+        void onClick(StepsItem item, int currStep);
     }
 
     @NonNull
@@ -46,7 +53,7 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecipeDetailAdapter.RecipeViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecipeStepAdapter.RecipeViewHolder holder, int position) {
 
         holder.stepTextView.setText(steps.get(position).getShortDescription());
     }
@@ -56,7 +63,7 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
         return mNumberItems;
     }
 
-    class RecipeViewHolder extends RecyclerView.ViewHolder {
+    class RecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         final TextView stepTextView;
 
@@ -65,7 +72,16 @@ public class RecipeDetailAdapter extends RecyclerView.Adapter<RecipeDetailAdapte
             super(itemView);
 
             stepTextView = itemView.findViewById(R.id.detail_step_tv);
+
+            itemView.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+
+            int position = getAdapterPosition();
+            mClickListener.onClick(steps.get(position), position);
+
+        }
     }
 }
