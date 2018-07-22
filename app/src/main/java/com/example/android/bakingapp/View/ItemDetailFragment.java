@@ -27,7 +27,7 @@ public class ItemDetailFragment extends Fragment {
      */
     public static final String ARG_ITEM_ID = "item_id";
 
-    private Recipe mItem;
+    static Recipe mItem;
     private TextView mRecipeIngredientsTv;
     private boolean ingredientsVisible;
 
@@ -42,10 +42,7 @@ public class ItemDetailFragment extends Fragment {
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItem = getArguments().getParcelable(ARG_ITEM_ID);
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.getName());
-            }
+
         }
     }
 
@@ -53,6 +50,11 @@ public class ItemDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
+
+        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+        if (appBarLayout != null) {
+            appBarLayout.setTitle(mItem.getName());
+        }
 
         if (mItem != null) {
             RecipeIngredientsAdapter ingredientsAdapter = new RecipeIngredientsAdapter(mItem.getIngredients(), getContext());

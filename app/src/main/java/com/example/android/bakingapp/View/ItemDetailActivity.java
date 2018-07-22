@@ -22,7 +22,7 @@ public class ItemDetailActivity extends AppCompatActivity implements OnStepClick
 
     String TAG = ItemDetailActivity.class.getSimpleName();
 
-    Recipe recipe;
+    static Recipe recipe;
     private int currStep;
 
     @Override

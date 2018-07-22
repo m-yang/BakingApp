@@ -36,7 +36,7 @@ public class StepDetailFragment extends Fragment {
     private ImageButton prevBtn;
     private ImageButton nextBtn;
 
-    private StepsItem mStepItem;
+    private static StepsItem mStepItem;
 
     private SimpleExoPlayer mExoPlayer;
     private SimpleExoPlayerView mExoPlayerView;
@@ -48,6 +48,7 @@ public class StepDetailFragment extends Fragment {
 
     interface PrevNextListener {
         void onPrevClick();
+
         void onNextClick();
     }
 
@@ -61,10 +62,6 @@ public class StepDetailFragment extends Fragment {
 
             mPrevNextListener = (PrevNextListener) getContext();
 
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mStepItem.getShortDescription());
-            }
         }
     }
 
@@ -74,7 +71,7 @@ public class StepDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
         mExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.media_player);
-        initializePlayer(Uri.parse(mStepItem.getVideoURL()));
+        initializePlayer();
 
         stepDescriptionTv = (TextView) rootView.findViewById(R.id.step_description);
         stepDescriptionTv.setText(mStepItem.getDescription());
@@ -82,6 +79,14 @@ public class StepDetailFragment extends Fragment {
         prevBtn = (ImageButton) rootView.findViewById(R.id.prev_step_btn);
         nextBtn = (ImageButton) rootView.findViewById(R.id.next_step_btn);
         setBtnListeners();
+
+        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) getActivity().findViewById(R.id.toolbar_layout);
+        if (appBarLayout != null) {
+            Log.d(TAG, "setting title to: " + mStepItem.getShortDescription());
+            appBarLayout.setTitle(mStepItem.getShortDescription());
+        } else {
+            Log.d(TAG, "app bar null");
+        }
 
         return rootView;
     }
@@ -102,8 +107,12 @@ public class StepDetailFragment extends Fragment {
         });
     }
 
-    private void initializePlayer(Uri mediaUri) {
-        if (mExoPlayer == null) {
+    private void initializePlayer() {
+
+        if (mExoPlayer == null && mStepItem.getVideoURL().length() > 0) {
+
+            Uri mediaUri = Uri.parse(mStepItem.getVideoURL());
+
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
             mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
@@ -113,14 +122,18 @@ public class StepDetailFragment extends Fragment {
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+        } else {
+            mExoPlayerView.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        releasePlayer();
+        if (mExoPlayer != null) {
+            releasePlayer();
+        }
+
     }
 
     private void releasePlayer() {
