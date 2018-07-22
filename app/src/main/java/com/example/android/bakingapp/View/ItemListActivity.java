@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Retrofit.RecipeEndpoint;
 import com.example.android.bakingapp.Model.Retrofit.RetrofitClient;
+import com.example.android.bakingapp.Model.StepsItem;
 import com.example.android.bakingapp.R;
 
 import java.util.List;
@@ -35,7 +37,7 @@ import static com.example.android.bakingapp.Model.Retrofit.RecipeEndpoint.BASE_U
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends AppCompatActivity implements RecipeStepAdapter.OnStepClickListener, StepDetailFragment.PrevNextListener {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -43,7 +45,11 @@ public class ItemListActivity extends AppCompatActivity {
      */
 
     private boolean mTwoPane;
+    private int currStep;
     Retrofit mRetrofit;
+
+    static Recipe recipe;
+
     String TAG = ItemListActivity.class.getSimpleName();
 
     @Override
@@ -96,6 +102,53 @@ public class ItemListActivity extends AppCompatActivity {
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView, List<Recipe> recipesList) {
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, recipesList, mTwoPane));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+    }
+
+    @Override
+    public void onClick(StepsItem item, int currStep) {
+
+        this.currStep = currStep;
+
+        android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+        StepDetailFragment fragment = new StepDetailFragment();
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+        fragment.setArguments(arguments);
+        ft.replace(R.id.item_detail_container, fragment)
+                .commit();
+    }
+
+    public void goToStep() {
+
+        StepsItem item = recipe.getSteps().get(currStep);
+
+        android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+        StepDetailFragment fragment = new StepDetailFragment();
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+        fragment.setArguments(arguments);
+        ft.replace(R.id.item_detail_container, fragment)
+                .commit();
+    }
+
+    @Override
+    public void onPrevClick() {
+        if(this.currStep - 1 >= 0) {
+            this.currStep--;
+            goToStep();
+        }
+    }
+
+    @Override
+    public void onNextClick() {
+        if(this.currStep + 1 < recipe.getSteps().size()) {
+            this.currStep++;
+            goToStep();
+        }
     }
 
     public static class SimpleItemRecyclerViewAdapter
@@ -107,10 +160,10 @@ public class ItemListActivity extends AppCompatActivity {
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Recipe item = (Recipe) view.getTag();
+                recipe = (Recipe) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, item);
+                    arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, recipe);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -119,7 +172,7 @@ public class ItemListActivity extends AppCompatActivity {
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item);
+                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, recipe);
                     context.startActivity(intent);
                 }
             }
