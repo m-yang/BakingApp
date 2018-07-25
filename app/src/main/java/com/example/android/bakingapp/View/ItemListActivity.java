@@ -1,8 +1,12 @@
 package com.example.android.bakingapp.View;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,13 +18,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.bakingapp.Model.IngredientsItem;
 import com.example.android.bakingapp.Model.Recipe;
 import com.example.android.bakingapp.Model.Retrofit.RecipeEndpoint;
 import com.example.android.bakingapp.Model.Retrofit.RetrofitClient;
 import com.example.android.bakingapp.Model.StepsItem;
 import com.example.android.bakingapp.R;
+import com.example.android.bakingapp.RecipeWidgetProvider;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,6 +55,8 @@ public class ItemListActivity extends AppCompatActivity implements RecipeStepAda
     private boolean mTwoPane;
     private int currStep;
     Retrofit mRetrofit;
+    public static final String RECIPE_KEY = "recipe-key";
+    static SharedPreferences sharedpreferences;
 
     static Recipe recipe;
 
@@ -56,6 +66,8 @@ public class ItemListActivity extends AppCompatActivity implements RecipeStepAda
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+
+        sharedpreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         ///////// Retrofit Call /////////
         mRetrofit = RetrofitClient.getInstance(BASE_URL);
@@ -151,7 +163,7 @@ public class ItemListActivity extends AppCompatActivity implements RecipeStepAda
         }
     }
 
-    public static class SimpleItemRecyclerViewAdapter
+    public class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
         private final ItemListActivity mParentActivity;
@@ -161,6 +173,22 @@ public class ItemListActivity extends AppCompatActivity implements RecipeStepAda
             @Override
             public void onClick(View view) {
                 recipe = (Recipe) view.getTag();
+
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+
+                Set<String> ingredients = new HashSet<>();
+                for(IngredientsItem item : recipe.getIngredients()) {
+                    ingredients.add(item.getIngredient());
+                }
+
+                editor.putStringSet(RECIPE_KEY, ingredients);
+                editor.apply();
+
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(ItemListActivity.this);
+                int appWidgetIds[] = appWidgetManager.getAppWidgetIds(
+                        new ComponentName(getApplicationContext(), RecipeWidgetProvider.class));
+                appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
+
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
                     arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, recipe);
