@@ -190,13 +190,10 @@ public class ItemListActivity extends AppCompatActivity implements RecipeStepAda
                 appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list_view);
 
                 if (mTwoPane) {
-                    Bundle arguments = new Bundle();
-                    arguments.putParcelable(ItemDetailFragment.ARG_ITEM_ID, recipe);
-                    ItemDetailFragment fragment = new ItemDetailFragment();
-                    fragment.setArguments(arguments);
-                    mParentActivity.getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.item_detail_container, fragment)
-                            .commit();
+                    Context context = view.getContext();
+                    Intent intent = new Intent(context, ItemDetailActivity.class);
+                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, recipe);
+                    context.startActivity(intent);
                 } else {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);

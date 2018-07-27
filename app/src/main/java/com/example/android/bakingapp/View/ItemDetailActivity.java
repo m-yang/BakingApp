@@ -24,6 +24,8 @@ public class ItemDetailActivity extends AppCompatActivity implements OnStepClick
 
     static Recipe recipe;
     private int currStep;
+    private boolean mTwoPane;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,11 @@ public class ItemDetailActivity extends AppCompatActivity implements OnStepClick
                     .add(R.id.item_detail_container, fragment)
                     .commit();
         }
+
+        if (findViewById(R.id.item_detail_container_2) != null) {
+            mTwoPane = true;
+        }
+
     }
 
     @Override
@@ -70,29 +77,58 @@ public class ItemDetailActivity extends AppCompatActivity implements OnStepClick
 
         android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
-        StepDetailFragment fragment = new StepDetailFragment();
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
-        fragment.setArguments(arguments);
-        ft.replace(R.id.item_detail_container, fragment)
-                .commit();
-        ft.addToBackStack(null);
+        if(mTwoPane) {
+
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+            StepDetailFragment fragment = new StepDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.item_detail_container_2, fragment)
+                    .commit();
+
+        } else {
+
+            StepDetailFragment fragment = new StepDetailFragment();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+            fragment.setArguments(arguments);
+            ft.replace(R.id.item_detail_container, fragment)
+                    .commit();
+            ft.addToBackStack(null);
+
+        }
 
     }
 
     public void goToStep() {
-
         StepsItem item = recipe.getSteps().get(currStep);
 
-        android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        if(mTwoPane) {
 
-        StepDetailFragment fragment = new StepDetailFragment();
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
-        fragment.setArguments(arguments);
-        ft.replace(R.id.item_detail_container, fragment)
-                .commit();
-        ft.addToBackStack(null);
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+            StepDetailFragment fragment = new StepDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.item_detail_container_2, fragment)
+                    .commit();
+
+        } else {
+
+
+            android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+            StepDetailFragment fragment = new StepDetailFragment();
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(StepDetailFragment.STEP_ITEM_ID, item);
+            fragment.setArguments(arguments);
+            ft.replace(R.id.item_detail_container, fragment)
+                    .commit();
+            ft.addToBackStack(null);
+        }
+
+
 
     }
 
