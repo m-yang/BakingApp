@@ -43,6 +43,8 @@ public class StepDetailFragment extends Fragment {
 
     private PrevNextListener mPrevNextListener;
 
+    private static long position = 0;
+    private static boolean playWhenReady = false;
     public StepDetailFragment() {
     }
 
@@ -121,16 +123,25 @@ public class StepDetailFragment extends Fragment {
             String userAgent = Util.getUserAgent(getContext(), getClass().getSimpleName());
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(
                     getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
+            if(position != 0) {
+                mExoPlayer.seekTo(position);
+            }
+
             mExoPlayer.prepare(mediaSource);
+
+            mExoPlayer.setPlayWhenReady(playWhenReady);
+
         } else {
             mExoPlayerView.setVisibility(View.GONE);
         }
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        super.onPause();
         if (mExoPlayer != null) {
+            position = mExoPlayer.getCurrentPosition();
+            playWhenReady = mExoPlayer.getPlayWhenReady();
             releasePlayer();
         }
 
